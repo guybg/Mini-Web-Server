@@ -1,13 +1,14 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRT_NONSTDC_NO_DEPRECATE
-
 #include <iostream>
 using namespace std;
 // Don't forget to include "Ws2_32.lib" in the library list.
 #include <winsock2.h>
 #include <string.h>
 #include <time.h>
+#include <map> 
+#include "RequestParser.h"
 
 struct SocketState
 {
@@ -18,6 +19,7 @@ struct SocketState
 	char buffer[128];
 	int len;
 };
+
 
 const int TIME_PORT = 7777;
 const int MAX_SOCKETS = 60;
@@ -38,8 +40,14 @@ void sendMessage(int index);
 struct SocketState sockets[MAX_SOCKETS]={0};
 int socketsCount = 0;
 
+void main() {
+	string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs";
+	RequestParser p;
+	Request request;
+	p.Parse(request, msg);
 
-void main() 
+}
+void main1() 
 {
     // Initialize Winsock (Windows Sockets).
 
@@ -357,3 +365,5 @@ void sendMessage(int index)
 
 	sockets[index].send = IDLE;
 }
+
+

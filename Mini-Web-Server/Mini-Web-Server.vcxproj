@@ -118,7 +118,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="RequestParser.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Trim.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RequestParser.h" />
+    <ClInclude Include="Request.h" />
+    <ClInclude Include="Trim.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
