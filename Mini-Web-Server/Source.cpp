@@ -40,14 +40,14 @@ void sendMessage(int index);
 struct SocketState sockets[MAX_SOCKETS]={0};
 int socketsCount = 0;
 
-void main() {
-	string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs";
-	RequestParser p;
-	Request request;
-	p.Parse(request, msg);
-
-}
-void main1() 
+// void main() {
+// 	string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs";
+// 	RequestParser p;
+// 	Request request;
+// 	p.Parse(request, msg);
+// 
+// }
+void main() 
 {
     // Initialize Winsock (Windows Sockets).
 
