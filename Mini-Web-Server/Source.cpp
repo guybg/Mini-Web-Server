@@ -9,6 +9,7 @@ using namespace std;
 #include <time.h>
 #include <map> 
 #include "RequestParser.h"
+#include "RequestHandler.h"
 
 struct SocketState
 {
@@ -40,14 +41,21 @@ void sendMessage(int index);
 struct SocketState sockets[MAX_SOCKETS]={0};
 int socketsCount = 0;
 
-// void main() {
-// 	string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs";
-// 	RequestParser p;
-// 	Request request;
-// 	p.Parse(request, msg);
-// 
-// }
-void main() 
+ void main() {
+	 string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs\r\n\r\n this is the body";//\ndthats my body messege";
+	RequestParser parser;
+	RequestHandler handler;
+ 	Request request;
+	string messegeToClient;
+	string method = "not get";
+	parser.Parse(request, msg);
+	handler.handle(request, messegeToClient);
+	if (Request::GET == request.methodType())
+		method = "GET";
+
+	cout << method << ' ' << request.getRequestUri() << ' ' << request.getVersion() << '\n' << request.getHeaderValue("Host") << '\n' << request.getBody() << '\n';
+ }
+void main1() 
 {
     // Initialize Winsock (Windows Sockets).
 

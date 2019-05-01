@@ -19,3 +19,4 @@ string Trim::trim(const string& i_string)
 {
 	return rightTrim(leftTrim(i_string));
 }
+

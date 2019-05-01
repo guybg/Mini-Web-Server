@@ -1,4 +1,6 @@
 #ifndef TRIM_H
+#define TRIM_H
+
 #include <algorithm> 
 #include <cctype>
 #include <locale>

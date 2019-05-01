@@ -1,4 +1,6 @@
 #ifndef PARSER_H
+#define PARSER_H
+
 #include "Request.h"
 #include "Trim.h"
 #include <Vector>

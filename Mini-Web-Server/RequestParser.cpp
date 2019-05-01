@@ -1,38 +1,46 @@
 #include "RequestParser.h"
-#define SPACE 32
 
 bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	int index;
 	Trim trimer;
 	string requestLine;
 	string value;
-	vector<string> requestLineParameters;
+	vector<string> requestLineParams;
+	vector<string> headerParams;
+	string requestBody = "";
+	i_httpRequest.append("\n");
 	index = i_httpRequest.find('\n', 0);
 	requestLine = i_httpRequest.substr(0, index);
-	requestLineParameters = splitLine(' ', requestLine);
-	
-	o_request.method = requestLineParameters[0];
-	o_request.requestUri = requestLineParameters[1];
-	o_request.version = requestLineParameters[2];
-	
+	requestLineParams = splitLine(' ', requestLine);
 	i_httpRequest = i_httpRequest.substr(index + 1);
+
+	index = i_httpRequest.find('\r\n\r\n', 0);
+	if (index != -1)
+	{
+		requestBody = i_httpRequest.substr(index, i_httpRequest.length() - index);
+		requestBody = trimer.trim(requestBody);
+	}
+	i_httpRequest = i_httpRequest.substr(0, index);
+
+	vector<pair<string, string>> headerList;
 	while (i_httpRequest.length())
 	{
 		string headerLine;
 		string headerName;
 		string headerValue;
-
 		index = i_httpRequest.find('\n', 0);
 		headerLine = i_httpRequest.substr(0, index);
-		requestLineParameters = splitLine(':', headerLine);
-		headerName = requestLineParameters[0];
-		headerValue = requestLineParameters[1];
-		o_request.headers.insert(pair<string, string>(headerName, headerValue));
-		if (index == -1)
-			break;
-		i_httpRequest = i_httpRequest.substr(index);
+		headerParams = splitLine(':', headerLine);
+		headerName = headerParams[0];
+		headerValue = headerParams[1];
+		headerList.insert(headerList.end(), pair<string, string>(headerName, headerValue));
+		
+		i_httpRequest = i_httpRequest.substr(index + 1);
 		i_httpRequest = trimer.trim(i_httpRequest);
+		if (index == -1)
+			i_httpRequest.clear();
 	}
+	o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody);
 	return true;
 }
 
