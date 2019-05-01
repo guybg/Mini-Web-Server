@@ -22,7 +22,7 @@ struct SocketState
 };
 
 
-const int TIME_PORT = 7777;
+const int TIME_PORT = 8888;
 const int MAX_SOCKETS = 60;
 const int EMPTY = 0;
 const int LISTEN  = 1;
@@ -41,21 +41,24 @@ void sendMessage(int index);
 struct SocketState sockets[MAX_SOCKETS]={0};
 int socketsCount = 0;
 
- void main() {
-	 string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs\r\n\r\n this is the body";//\ndthats my body messege";
-	RequestParser parser;
-	RequestHandler handler;
- 	Request request;
-	string messegeToClient;
-	string method = "not get";
-	parser.Parse(request, msg);
-	handler.handle(request, messegeToClient);
-	if (Request::GET == request.methodType())
-		method = "GET";
+//*************************testing***********
+// void main() {
+//	 string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs\r\n\r\n this is the body";//\ndthats my body messege";
+//	RequestParser parser;
+//	RequestHandler handler;
+// 	Request request;
+//	string messegeToClient;
+//	string method = "not get";
+//	parser.Parse(request, msg);
+//	handler.handle(request, messegeToClient);
+//	if (Request::GET == request.methodType())
+//		method = "GET";
+//
+//	cout << method << ' ' << request.getRequestUri() << ' ' << request.getVersion() << '\n' << request.getHeaderValue("Host") << '\n' << request.getBody() << '\n';
+// }
+//*********************************************
 
-	cout << method << ' ' << request.getRequestUri() << ' ' << request.getVersion() << '\n' << request.getHeaderValue("Host") << '\n' << request.getBody() << '\n';
- }
-void main1() 
+void main() 
 {
     // Initialize Winsock (Windows Sockets).
 
@@ -302,7 +305,14 @@ void receiveMessage(int index)
 	{
 		sockets[index].buffer[len + bytesRecv] = '\0'; //add the null-terminating to make it a string
 		cout<<"Time Server: Recieved: "<<bytesRecv<<" bytes of \""<<&sockets[index].buffer[len]<<"\" message.\n";
-		
+
+		//***************testing************
+		//sockets[index].len += bytesRecv;
+		//sockets[index].send = SEND;
+		//sockets[index].sendSubType = SEND_TIME;
+		//memcpy(sockets[index].buffer, &sockets[index].buffer[bytesRecv], sockets[index].len - bytesRecv);
+		//sockets[index].len -= bytesRecv;
+		//************************************
 		sockets[index].len += bytesRecv;
 
 		if (sockets[index].len > 0)
@@ -340,6 +350,7 @@ void sendMessage(int index)
 	char sendBuff[255];
 
 	SOCKET msgSocket = sockets[index].id;
+
 	if (sockets[index].sendSubType == SEND_TIME)
 	{
 		// Answer client's request by the current time string.
@@ -361,6 +372,16 @@ void sendMessage(int index)
 		// Convert the number to string.
 		itoa((int)timer, sendBuff, 10);		
 	}
+
+	//*************testing*************
+	//RequestParser parser;
+	//RequestHandler handler;
+	//Request request;
+	//string messegeToClient;
+	//parser.Parse(request, sockets[index].buffer);
+	//handler.handle(request, messegeToClient);
+	//strcpy(sendBuff, messegeToClient.c_str());
+	//*************************************
 
 	bytesSent = send(msgSocket, sendBuff, (int)strlen(sendBuff), 0);
 	if (SOCKET_ERROR == bytesSent)

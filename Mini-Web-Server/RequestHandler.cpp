@@ -2,7 +2,6 @@
 
 bool RequestHandler::handle(Request i_request, string &o_messege) {
 	bool validRequest;
-	string processedMsg;
 	validRequest = i_request.isValid();
 
 	if (!validRequest) {
@@ -11,22 +10,22 @@ bool RequestHandler::handle(Request i_request, string &o_messege) {
 
 	switch (i_request.methodType()) {
 	case Request::GET :
-		httpGET(i_request, processedMsg);
+		httpGET(i_request, o_messege);
 		break;
 	case Request::PUSH:
-		httpPUSH(i_request, processedMsg);
+		httpPUSH(i_request, o_messege);
 		break;
 	case Request::OPTIONS:
-		httpOPTIONS(i_request, processedMsg);
+		httpOPTIONS(i_request, o_messege);
 		break;
 	case Request::eDELETE:
-		httpDELETE(i_request, processedMsg);
+		httpDELETE(i_request, o_messege);
 		break;
 	case Request::TRACE:
-		httpTRACE(i_request, processedMsg);
+		httpTRACE(i_request, o_messege);
 		break;
 	case Request::HEAD:
-		httpHEAD(i_request, processedMsg);
+		httpHEAD(i_request, o_messege);
 		break;
 	}
 
@@ -35,12 +34,14 @@ bool RequestHandler::handle(Request i_request, string &o_messege) {
 }
 
 bool RequestHandler::httpGET(Request i_request, string &o_processedMsg) {
+	o_processedMsg = "it was a get messege";
 	return true;
 }
 bool RequestHandler::httpPUSH(Request i_request, string &o_processedMsg) {
 	return true;
 }
 bool RequestHandler::httpOPTIONS(Request i_request, string &o_processedMsg) {
+	o_processedMsg = "it was a options messege";
 	return true;
 }
 bool RequestHandler::httpDELETE(Request i_request, string &o_processedMsg) {
