@@ -383,9 +383,10 @@ void sendMessage(int index)
 	RequestParser parser;
 	RequestHandler handler;
 	Request request;
+	bool isParsed;
 	string messegeToClient;
-	parser.Parse(request, sockets[index].buffer);
-	handler.handle(request, messegeToClient);
+	isParsed = parser.Parse(request, sockets[index].buffer);
+	if(isParsed == true) handler.handle(request, messegeToClient);
 	strcpy(sendBuff, messegeToClient.c_str());
 	//*************************************
 

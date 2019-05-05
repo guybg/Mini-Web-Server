@@ -84,7 +84,6 @@ bool RequestHandler::httpOPTIONS(Request i_request, string &o_processedMsg) {
 	bool isFileFound = 0;
 	time_t rawtime;
 	time(&rawtime);
-
 	isValidPath = getPath(i_request.getRequestUri(), filePath);
 	requestLine += VERSION;
 	requestLine += ' ';
@@ -95,10 +94,10 @@ bool RequestHandler::httpOPTIONS(Request i_request, string &o_processedMsg) {
 	else if (isValidPath == false) {
 		requestLine += BAD_REQUEST; 
 	}
-	else if (isFileFound == false)
-	{
-		requestLine += NOT_FOUND;
-	}
+	//else if (isFileFound == false)
+	//{
+	//	requestLine += NOT_FOUND;
+	//}
 	else
 	{
 		requestLine += OK;

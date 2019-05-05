@@ -8,6 +8,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	vector<string> requestLineParams;
 	vector<string> headerParams;
 	string requestBody = "";
+	bool isValid = true;
 	i_httpRequest.append("\n");
 	index = i_httpRequest.find('\n', 0);
 	requestLine = i_httpRequest.substr(0, index);
@@ -23,7 +24,10 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	i_httpRequest = i_httpRequest.substr(0, index);
 
 	vector<pair<string, string>> headerList;
-	while (i_httpRequest.length())
+	int test = i_httpRequest.find("Host");
+	if (!i_httpRequest.find("Host") || requestLineParams.size() != 3)
+		isValid = false;
+	while (i_httpRequest.length() && isValid == true)
 	{
 		string headerLine;
 		string headerName;
@@ -40,8 +44,9 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 		if (index == -1)
 			i_httpRequest.clear();
 	}
-	o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody);
-	return true;
+	if(isValid == true)
+		o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody);
+	return isValid;
 }
 
 
