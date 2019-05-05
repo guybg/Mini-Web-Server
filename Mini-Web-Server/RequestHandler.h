@@ -9,9 +9,12 @@
 #define CREATED "201 Created"
 #define NO_CONTENT "204 No Content"
 #define NOT_FOUND "404 Not Found"
+#define BAD_REQUEST "400 Bad Request"
 #define PRECONDITION_FAILED "412 Precondition Failed"
 #define NOT_IMPLEMENTED "501 Not Implemented"
 #define VERSION "HTTP/1.1"
+#define SERVER_INFO "MiniWebServer (Windows)"
+#define CONNECTION_CLOSED "close"
 
 #define MESSAGE_CONTENT_TYPE "message/http"
 #define HTML_CONTENT_TYPE "text/html"
@@ -26,6 +29,8 @@
 #define HTTP_VER_KEY "HTTP-Version"
 #define STATUS_CODE_KEY "Status"
 #define REQUEST_LINE "request-line"
+#define SERVER "Server"
+#define CONNECTION "Connection"
 
 static class RequestHandler {
 public:
@@ -38,7 +43,7 @@ private:
 	bool httpTRACE(Request i_request, string &o_processedMsg);
 	bool httpHEAD(Request i_request, string &o_processedMsg);
 	string buildAnswer(map<string, string> i_responseParameters);
-	string getPath(string i_requestUri);
+	bool getPath(string i_requestUri, string &o_path);
 	FileHandler fileHandler;
 };
 
