@@ -27,12 +27,12 @@ private:
 
 public:
 	bool isValid();
-	Method methodType();
 	bool setRequest(string i_method,
 		string i_requestUri,
 		string i_version,
 		vector<pair<string,string>> i_headers,
 		string i_body);
+	Method methodType();
 	string getRequestUri() { return m_requestUri; }
 	string getVersion() { return m_version; }
 	string getBody() { return m_body; }

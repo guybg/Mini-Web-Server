@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRT_NONSTDC_NO_DEPRECATE
 #include <iostream>
+#include "FileHandler.h"
 using namespace std;
 // Don't forget to include "Ws2_32.lib" in the library list.
 #include <winsock2.h>
@@ -42,11 +43,11 @@ struct SocketState sockets[MAX_SOCKETS]={0};
 int socketsCount = 0;
 
 //*************************testing***********
-// void main() {
-//	 string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nlalala: blalala\n pilpil: milmil\n basdfasd:frdgsdfs\r\n\r\n this is the body";//\ndthats my body messege";
+//void main() {
+//	string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nmath: isfun\n yafe: meod\n OFIR:hamagniv\r\n\r\n this is the body";//\ndthats my body messege";
 //	RequestParser parser;
 //	RequestHandler handler;
-// 	Request request;
+//	Request request;
 //	string messegeToClient;
 //	string method = "not get";
 //	parser.Parse(request, msg);
@@ -54,10 +55,15 @@ int socketsCount = 0;
 //	if (Request::GET == request.methodType())
 //		method = "GET";
 //
-//	cout << method << ' ' << request.getRequestUri() << ' ' << request.getVersion() << '\n' << request.getHeaderValue("Host") << '\n' << request.getBody() << '\n';
-// }
+//	cout << method << ' ' << request.getRequestUri() << ' ' << request.getVersion() << '\n' << request.getHeaderValue("Host") << '\n' << request.getHeaderValue("math") << '\n' << request.getBody() << '\n';
+//}
 //*********************************************
-
+//void main() {
+//	FileHandler fileHandler;
+//	string content;
+//	fileHandler.readFile("www/blsdfsdfa.html", content);
+//	cout << content;
+//}
 void main() 
 {
     // Initialize Winsock (Windows Sockets).
@@ -307,13 +313,13 @@ void receiveMessage(int index)
 		cout<<"Time Server: Recieved: "<<bytesRecv<<" bytes of \""<<&sockets[index].buffer[len]<<"\" message.\n";
 
 		//***************testing************
-		//sockets[index].len += bytesRecv;
-		//sockets[index].send = SEND;
-		//sockets[index].sendSubType = SEND_TIME;
-		//memcpy(sockets[index].buffer, &sockets[index].buffer[bytesRecv], sockets[index].len - bytesRecv);
-		//sockets[index].len -= bytesRecv;
-		//************************************
 		sockets[index].len += bytesRecv;
+		sockets[index].send = SEND;
+		sockets[index].sendSubType = SEND_TIME;
+		memcpy(sockets[index].buffer, &sockets[index].buffer[bytesRecv], sockets[index].len - bytesRecv);
+		sockets[index].len -= bytesRecv;
+		//************************************
+		//sockets[index].len += bytesRecv;
 
 		if (sockets[index].len > 0)
 		{
@@ -347,7 +353,7 @@ void receiveMessage(int index)
 void sendMessage(int index)
 {
 	int bytesSent = 0;
-	char sendBuff[255];
+	char sendBuff[1024];
 
 	SOCKET msgSocket = sockets[index].id;
 
@@ -374,13 +380,13 @@ void sendMessage(int index)
 	}
 
 	//*************testing*************
-	//RequestParser parser;
-	//RequestHandler handler;
-	//Request request;
-	//string messegeToClient;
-	//parser.Parse(request, sockets[index].buffer);
-	//handler.handle(request, messegeToClient);
-	//strcpy(sendBuff, messegeToClient.c_str());
+	RequestParser parser;
+	RequestHandler handler;
+	Request request;
+	string messegeToClient;
+	parser.Parse(request, sockets[index].buffer);
+	handler.handle(request, messegeToClient);
+	strcpy(sendBuff, messegeToClient.c_str());
 	//*************************************
 
 	bytesSent = send(msgSocket, sendBuff, (int)strlen(sendBuff), 0);
