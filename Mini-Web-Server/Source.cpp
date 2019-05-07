@@ -17,7 +17,6 @@ struct SocketState
 	SOCKET id;			// Socket handle
 	int	recv;			// Receiving?
 	int	send;			// Sending?
-	//int sendSubType;	// Sending sub-type
 	char buffer[128];
 	char currMsg[128];
 	int len;
@@ -327,33 +326,6 @@ void receiveMessage(int index)
 			sockets[index].len -= msgLength + 1;
 		}
 		//************************************
-		//sockets[index].len += bytesRecv;
-
-	//	if (sockets[index].len > 0)
-	//	{
-	//		if (strncmp(sockets[index].buffer, "TimeString", 10) == 0)
-	//		{
-	//			sockets[index].send  = SEND;
-	//			sockets[index].sendSubType = SEND_TIME;
-	//			memcpy(sockets[index].buffer, &sockets[index].buffer[10], sockets[index].len - 10);
-	//			sockets[index].len -= 10;
-	//			return;
-	//		}
-	//		else if (strncmp(sockets[index].buffer, "SecondsSince1970", 16) == 0)
-	//		{
-	//			sockets[index].send  = SEND;
-	//			sockets[index].sendSubType = SEND_SECONDS;
-	//			memcpy(sockets[index].buffer, &sockets[index].buffer[16], sockets[index].len - 16);
-	//			sockets[index].len -= 16;
-	//			return;
-	//		}
-	//		else if (strncmp(sockets[index].buffer, "Exit", 4) == 0)
-	//		{
-	//			closesocket(msgSocket);
-	//			removeSocket(index);
-	//			return;
-	//		}
-	//	}
 	}
 
 }
@@ -364,28 +336,6 @@ void sendMessage(int index)
 	char sendBuff[1024];
 
 	SOCKET msgSocket = sockets[index].id;
-
-//	if (sockets[index].sendSubType == SEND_TIME)
-//	{
-//		// Answer client's request by the current time string.
-//		
-//		// Get the current time.
-//		time_t timer;
-//		time(&timer);
-//		// Parse the current time to printable string.
-//		strcpy(sendBuff, ctime(&timer));
-//		sendBuff[strlen(sendBuff)-1] = 0; //to remove the new-line from the created string
-//	}
-//	else if(sockets[index].sendSubType == SEND_SECONDS)
-//	{
-//		// Answer client's request by the current time in seconds.
-//		
-//		// Get the current time.
-//		time_t timer;
-//		time(&timer);
-//		// Convert the number to string.
-//		itoa((int)timer, sendBuff, 10);		
-//	}
 
 	//*************testing*************
 	RequestParser parser;
