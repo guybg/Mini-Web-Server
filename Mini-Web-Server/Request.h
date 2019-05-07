@@ -22,7 +22,7 @@ private:
 	string m_version;
 	map<string, string> m_headers;
 	string m_body;
-
+	string m_rawMsg;
 	static map<string, Method> m_methodMap;
 
 public:
@@ -31,12 +31,14 @@ public:
 		string i_requestUri,
 		string i_version,
 		vector<pair<string,string>> i_headers,
-		string i_body);
+		string i_body,
+		string i_httpRequest);
 	Method methodType();
 	string getRequestUri() { return m_requestUri; }
 	string getVersion() { return m_version; }
 	string getBody() { return m_body; }
 	string getHeaderValue(string i_headerName) { return m_headers[i_headerName]; }
+	string getRawMsg() { return m_rawMsg; }
 };
 
 #endif

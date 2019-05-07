@@ -5,6 +5,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	Trim trimer;
 	string requestLine;
 	string value;
+	string rawRequest = i_httpRequest;
 	vector<string> requestLineParams;
 	vector<string> headerParams;
 	string requestBody = "";
@@ -45,7 +46,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 			i_httpRequest.clear();
 	}
 	if(isValid == true)
-		o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody);
+		o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody, rawRequest);
 	return isValid;
 }
 

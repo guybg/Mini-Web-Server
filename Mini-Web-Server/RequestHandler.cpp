@@ -94,10 +94,6 @@ bool RequestHandler::httpOPTIONS(Request i_request, string &o_processedMsg) {
 	else if (isValidPath == false) {
 		requestLine += BAD_REQUEST; 
 	}
-	//else if (isFileFound == false)
-	//{
-	//	requestLine += NOT_FOUND;
-	//}
 	else
 	{
 		requestLine += OK;
@@ -120,6 +116,43 @@ bool RequestHandler::httpDELETE(Request i_request, string &o_processedMsg) {
 	return true;
 }
 bool RequestHandler::httpTRACE(Request i_request, string &o_processedMsg) {
+	map<string, string> responseParameters;
+	char ctmp[20];
+	string filePath;
+	string fileContent;
+	string requestLine;
+	string answer = i_request.getRawMsg();
+	int answerLength = i_request.getRawMsg().length();
+	int fileLength;
+	bool isFileFound = 0;
+	bool isValidPath = 0;
+	time_t rawtime;
+	time(&rawtime);
+
+	isValidPath = getPath(i_request.getRequestUri(), filePath);
+	requestLine += VERSION;
+	requestLine += ' ';
+	isFileFound = fileHandler.readFile(filePath, fileContent);
+	if (isValidPath == false && i_request.getRequestUri() != "*") {
+		requestLine += BAD_REQUEST;
+		answerLength = 0;
+		answer = "";
+	}
+	else
+	{
+		requestLine += OK;
+	}
+	string test = i_request.getRawMsg();
+	string serverTime = ctime(&rawtime);
+	serverTime = serverTime.substr(0, serverTime.length() - 1);
+	responseParameters.insert(pair<string, string>(REQUEST_LINE, requestLine));
+	responseParameters.insert(make_pair(CONTENT_TYPE_KEY, MESSAGE_CONTENT_TYPE));
+	responseParameters.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(answerLength, ctmp, 10)));
+	responseParameters.insert(make_pair(SERVER, SERVER_INFO));
+	responseParameters.insert(make_pair(DATE_KEY, serverTime));
+	responseParameters.insert(make_pair(BODY_KEY, answer));
+
+	o_processedMsg = buildAnswer(responseParameters);
 	return true;
 }
 bool RequestHandler::httpHEAD(Request i_request, string &o_processedMsg) {

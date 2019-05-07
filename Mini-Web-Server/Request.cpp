@@ -14,7 +14,8 @@ bool Request::setRequest(string i_method,
 						 string i_requestUri,
 						 string i_version,
 						 vector<pair<string,string>> i_headers,
-						 string i_body)
+						 string i_body,
+						 string i_httpRequest)
 {
 	//check validity
 	this->m_method = m_methodMap[i_method];
@@ -27,6 +28,7 @@ bool Request::setRequest(string i_method,
 	}
 
 	this->m_body = i_body;
+	this->m_rawMsg = i_httpRequest;
 	return 0;
 
 }
