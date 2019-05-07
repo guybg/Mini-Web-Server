@@ -17,8 +17,9 @@ struct SocketState
 	SOCKET id;			// Socket handle
 	int	recv;			// Receiving?
 	int	send;			// Sending?
-	int sendSubType;	// Sending sub-type
+	//int sendSubType;	// Sending sub-type
 	char buffer[128];
+	char currMsg[128];
 	int len;
 };
 
@@ -64,6 +65,7 @@ int socketsCount = 0;
 //	fileHandler.readFile("www/blsdfsdfa.html", content);
 //	cout << content;
 //}
+
 void main() 
 {
     // Initialize Winsock (Windows Sockets).
@@ -292,8 +294,9 @@ void receiveMessage(int index)
 	SOCKET msgSocket = sockets[index].id;
 
 	int len = sockets[index].len;
-	int bytesRecv = recv(msgSocket, &sockets[index].buffer[len], sizeof(sockets[index].buffer) - len, 0);
-	
+	int bytesRecv = recv(msgSocket, &sockets[index].buffer[len+1], sizeof(sockets[index].buffer) - len + 1, 0);
+	sockets[index].buffer[len] = bytesRecv;
+
 	if (SOCKET_ERROR == bytesRecv)
 	{
 		cout << "Time Server: Error at recv(): " << WSAGetLastError() << endl;
@@ -309,43 +312,48 @@ void receiveMessage(int index)
 	}
 	else
 	{
-		sockets[index].buffer[len + bytesRecv] = '\0'; //add the null-terminating to make it a string
-		cout<<"Time Server: Recieved: "<<bytesRecv<<" bytes of \""<<&sockets[index].buffer[len]<<"\" message.\n";
+		sockets[index].buffer[len + 1 + bytesRecv] = '\0'; //add the null-terminating to make it a string
+		cout<<"Time Server: Recieved: "<<bytesRecv<<" bytes of \""<<&sockets[index].buffer[len + 1]<<"\" message.\n";
 
 		//***************testing************
-		sockets[index].len += bytesRecv;
-		sockets[index].send = SEND;
-		sockets[index].sendSubType = SEND_TIME;
-		memcpy(sockets[index].buffer, &sockets[index].buffer[bytesRecv], sockets[index].len - bytesRecv);
-		sockets[index].len -= bytesRecv;
+		sockets[index].len += bytesRecv + 1;
+		
+		if (sockets[index].len > 0)
+		{
+			int msgLength = sockets[index].buffer[0];
+			sockets[index].send = SEND;
+			memcpy(sockets[index].currMsg, &sockets[index].buffer[1], msgLength + 1 + 1);
+			memcpy(sockets[index].buffer, &sockets[index].buffer[msgLength + 1], sockets[index].len - msgLength + 1);
+			sockets[index].len -= msgLength + 1;
+		}
 		//************************************
 		//sockets[index].len += bytesRecv;
 
-		if (sockets[index].len > 0)
-		{
-			if (strncmp(sockets[index].buffer, "TimeString", 10) == 0)
-			{
-				sockets[index].send  = SEND;
-				sockets[index].sendSubType = SEND_TIME;
-				memcpy(sockets[index].buffer, &sockets[index].buffer[10], sockets[index].len - 10);
-				sockets[index].len -= 10;
-				return;
-			}
-			else if (strncmp(sockets[index].buffer, "SecondsSince1970", 16) == 0)
-			{
-				sockets[index].send  = SEND;
-				sockets[index].sendSubType = SEND_SECONDS;
-				memcpy(sockets[index].buffer, &sockets[index].buffer[16], sockets[index].len - 16);
-				sockets[index].len -= 16;
-				return;
-			}
-			else if (strncmp(sockets[index].buffer, "Exit", 4) == 0)
-			{
-				closesocket(msgSocket);
-				removeSocket(index);
-				return;
-			}
-		}
+	//	if (sockets[index].len > 0)
+	//	{
+	//		if (strncmp(sockets[index].buffer, "TimeString", 10) == 0)
+	//		{
+	//			sockets[index].send  = SEND;
+	//			sockets[index].sendSubType = SEND_TIME;
+	//			memcpy(sockets[index].buffer, &sockets[index].buffer[10], sockets[index].len - 10);
+	//			sockets[index].len -= 10;
+	//			return;
+	//		}
+	//		else if (strncmp(sockets[index].buffer, "SecondsSince1970", 16) == 0)
+	//		{
+	//			sockets[index].send  = SEND;
+	//			sockets[index].sendSubType = SEND_SECONDS;
+	//			memcpy(sockets[index].buffer, &sockets[index].buffer[16], sockets[index].len - 16);
+	//			sockets[index].len -= 16;
+	//			return;
+	//		}
+	//		else if (strncmp(sockets[index].buffer, "Exit", 4) == 0)
+	//		{
+	//			closesocket(msgSocket);
+	//			removeSocket(index);
+	//			return;
+	//		}
+	//	}
 	}
 
 }
@@ -357,27 +365,27 @@ void sendMessage(int index)
 
 	SOCKET msgSocket = sockets[index].id;
 
-	if (sockets[index].sendSubType == SEND_TIME)
-	{
-		// Answer client's request by the current time string.
-		
-		// Get the current time.
-		time_t timer;
-		time(&timer);
-		// Parse the current time to printable string.
-		strcpy(sendBuff, ctime(&timer));
-		sendBuff[strlen(sendBuff)-1] = 0; //to remove the new-line from the created string
-	}
-	else if(sockets[index].sendSubType == SEND_SECONDS)
-	{
-		// Answer client's request by the current time in seconds.
-		
-		// Get the current time.
-		time_t timer;
-		time(&timer);
-		// Convert the number to string.
-		itoa((int)timer, sendBuff, 10);		
-	}
+//	if (sockets[index].sendSubType == SEND_TIME)
+//	{
+//		// Answer client's request by the current time string.
+//		
+//		// Get the current time.
+//		time_t timer;
+//		time(&timer);
+//		// Parse the current time to printable string.
+//		strcpy(sendBuff, ctime(&timer));
+//		sendBuff[strlen(sendBuff)-1] = 0; //to remove the new-line from the created string
+//	}
+//	else if(sockets[index].sendSubType == SEND_SECONDS)
+//	{
+//		// Answer client's request by the current time in seconds.
+//		
+//		// Get the current time.
+//		time_t timer;
+//		time(&timer);
+//		// Convert the number to string.
+//		itoa((int)timer, sendBuff, 10);		
+//	}
 
 	//*************testing*************
 	RequestParser parser;
@@ -385,7 +393,7 @@ void sendMessage(int index)
 	Request request;
 	bool isParsed;
 	string messegeToClient;
-	isParsed = parser.Parse(request, sockets[index].buffer);
+	isParsed = parser.Parse(request, sockets[index].currMsg);
 	if(isParsed == true) handler.handle(request, messegeToClient);
 	strcpy(sendBuff, messegeToClient.c_str());
 	//*************************************

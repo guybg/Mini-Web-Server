@@ -25,7 +25,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 
 	vector<pair<string, string>> headerList;
 	int test = i_httpRequest.find("Host");
-	if (!i_httpRequest.find("Host") || requestLineParams.size() != 3)
+	if (i_httpRequest.find("Host") == -1 || requestLineParams.size() != 3)
 		isValid = false;
 	while (i_httpRequest.length() && isValid == true)
 	{
