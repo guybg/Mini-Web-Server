@@ -123,6 +123,10 @@ bool RequestHandler::httpTRACE(Request i_request, string &o_processedMsg) {
 	return true;
 }
 bool RequestHandler::httpHEAD(Request i_request, string &o_processedMsg) {
+	httpGET(i_request, o_processedMsg);
+	int bodyIndex = o_processedMsg.find("\r\n\r\n");
+	if(bodyIndex != -1)
+		o_processedMsg = o_processedMsg.substr(0, bodyIndex);
 	return true;
 }
 
@@ -156,6 +160,7 @@ string RequestHandler::buildAnswer(map<string, string> i_responseParameters) {
 		answer += "\r\n" + it->first + ": " + it->second;
 	}
 	// adds body to answer
-	answer += "\r\n" + body;
+	if(body.length() > 0)
+		answer += "\r\n\r\n" + body;
 	return answer;
 }
