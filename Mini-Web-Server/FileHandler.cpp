@@ -19,6 +19,7 @@ bool FileHandler::readFile(string i_filePath, string &o_fileContent) {
 			o_fileContent += lineContent;
 			o_fileContent += '\n';
 		}
+		o_fileContent = o_fileContent.substr(0, o_fileContent.length() - 1);
 		webFile.close();
 	}
 }

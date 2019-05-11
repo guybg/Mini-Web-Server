@@ -80,7 +80,7 @@ void main()
 	// The WSACleanup function destructs the use of WS2_32.DLL by a process.
 	if (NO_ERROR != WSAStartup(MAKEWORD(2,2), &wsaData))
 	{
-        cout<<"Time Server: Error at WSAStartup()\n";
+        cout<<"Http Server: Error at WSAStartup()\n";
 		return;
 	}
 
@@ -104,7 +104,7 @@ void main()
 	// error number associated with the last error that occurred.
 	if (INVALID_SOCKET == listenSocket)
 	{
-        cout<<"Time Server: Error at socket(): "<<WSAGetLastError()<<endl;
+        cout<<"Http Server: Error at socket(): "<<WSAGetLastError()<<endl;
         WSACleanup();
         return;
 	}
@@ -137,7 +137,7 @@ void main()
 	// sockaddr structure (in bytes).
     if (SOCKET_ERROR == bind(listenSocket, (SOCKADDR *) &serverService, sizeof(serverService))) 
 	{
-		cout<<"Time Server: Error at bind(): "<<WSAGetLastError()<<endl;
+		cout<<"Http Server: Error at bind(): "<<WSAGetLastError()<<endl;
         closesocket(listenSocket);
 		WSACleanup();
         return;
@@ -148,7 +148,7 @@ void main()
 	// from other clients). This sets the backlog parameter.
     if (SOCKET_ERROR == listen(listenSocket, 5))
 	{
-		cout << "Time Server: Error at listen(): " << WSAGetLastError() << endl;
+		cout << "Http Server: Error at listen(): " << WSAGetLastError() << endl;
         closesocket(listenSocket);
 		WSACleanup();
         return;
@@ -189,7 +189,7 @@ void main()
 		nfd = select(0, &waitRecv, &waitSend, NULL, NULL);
 		if (nfd == SOCKET_ERROR)
 		{
-			cout <<"Time Server: Error at select(): " << WSAGetLastError() << endl;
+			cout <<"Http Server: Error at select(): " << WSAGetLastError() << endl;
 			WSACleanup();
 			return;
 		}
@@ -228,7 +228,7 @@ void main()
 	}
 
 	// Closing connections and Winsock.
-	cout << "Time Server: Closing Connection.\n";
+	cout << "Http Server: Closing Connection.\n";
 	closesocket(listenSocket);
 	WSACleanup();
 }
@@ -266,10 +266,10 @@ void acceptConnection(int index)
 	SOCKET msgSocket = accept(id, (struct sockaddr *)&from, &fromLen);
 	if (INVALID_SOCKET == msgSocket)
 	{ 
-		 cout << "Time Server: Error at accept(): " << WSAGetLastError() << endl; 		 
+		 cout << "Http Server: Error at accept(): " << WSAGetLastError() << endl; 		 
 		 return;
 	}
-	cout << "Time Server: Client "<<inet_ntoa(from.sin_addr)<<":"<<ntohs(from.sin_port)<<" is connected." << endl;
+	cout << "Http Server: Client "<<inet_ntoa(from.sin_addr)<<":"<<ntohs(from.sin_port)<<" is connected." << endl;
 
 	//
 	// Set the socket to be in non-blocking mode.
@@ -277,7 +277,7 @@ void acceptConnection(int index)
 	unsigned long flag=1;
 	if (ioctlsocket(msgSocket, FIONBIO, &flag) != 0)
 	{
-		cout<<"Time Server: Error at ioctlsocket(): "<<WSAGetLastError()<<endl;
+		cout<<"Http Server: Error at ioctlsocket(): "<<WSAGetLastError()<<endl;
 	}
 
 	if (addSocket(msgSocket, RECEIVE) == false)
@@ -298,7 +298,7 @@ void receiveMessage(int index)
 
 	if (SOCKET_ERROR == bytesRecv)
 	{
-		cout << "Time Server: Error at recv(): " << WSAGetLastError() << endl;
+		cout << "Http Server: Error at recv(): " << WSAGetLastError() << endl;
 		closesocket(msgSocket);			
 		removeSocket(index);
 		return;
@@ -312,7 +312,7 @@ void receiveMessage(int index)
 	else
 	{
 		sockets[index].buffer[len + 1 + bytesRecv] = '\0'; //add the null-terminating to make it a string
-		cout<<"Time Server: Recieved: "<<bytesRecv<<" bytes of \""<<&sockets[index].buffer[len + 1]<<"\" message.\n";
+		cout<<"\nHttp Server: Recieved: "<<bytesRecv<<" bytes of \"\n\""<<&sockets[index].buffer[len + 1]<<"\" message.\n";
 
 		//***************testing************
 		sockets[index].len += bytesRecv + 1;
@@ -354,11 +354,11 @@ void sendMessage(int index)
 	bytesSent = send(msgSocket, sendBuff, (int)strlen(sendBuff), 0);
 	if (SOCKET_ERROR == bytesSent)
 	{
-		cout << "Time Server: Error at send(): " << WSAGetLastError() << endl;	
+		cout << "Http Server: Error at send(): " << WSAGetLastError() << endl;	
 		return;
 	}
 
-	cout<<"Time Server: Sent: "<<bytesSent<<"\\"<<strlen(sendBuff)<<" bytes of \""<<sendBuff<<"\" message.\n";	
+	cout<<"\n\nHttp Server: Sent: "<<bytesSent<<"\\"<<strlen(sendBuff)<<" bytes of \n\""<<sendBuff<<"\" message.\n";	
 
 	sockets[index].send = IDLE;
 }
