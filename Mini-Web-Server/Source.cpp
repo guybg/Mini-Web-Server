@@ -42,29 +42,6 @@ void sendMessage(int index);
 struct SocketState sockets[MAX_SOCKETS]={0};
 int socketsCount = 0;
 
-//*************************testing***********
-//void main() {
-//	string msg = "      Get			/			HTTP/1.1\nHost:	 banana.com\nmath: isfun\n yafe: meod\n OFIR:hamagniv\r\n\r\n this is the body";//\ndthats my body messege";
-//	RequestParser parser;
-//	RequestHandler handler;
-//	Request request;
-//	string messegeToClient;
-//	string method = "not get";
-//	parser.Parse(request, msg);
-//	handler.handle(request, messegeToClient);
-//	if (Request::GET == request.methodType())
-//		method = "GET";
-//
-//	cout << method << ' ' << request.getRequestUri() << ' ' << request.getVersion() << '\n' << request.getHeaderValue("Host") << '\n' << request.getHeaderValue("math") << '\n' << request.getBody() << '\n';
-//}
-//*********************************************
-//void main() {
-//	FileHandler fileHandler;
-//	string content;
-//	fileHandler.readFile("www/blsdfsdfa.html", content);
-//	cout << content;
-//}
-
 void main() 
 {
     // Initialize Winsock (Windows Sockets).
