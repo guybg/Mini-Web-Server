@@ -10,7 +10,6 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	vector<string> headerParams;
 	string requestBody = "";
 	bool isValid = true;
-	//i_httpRequest.append("\n");
 	index = i_httpRequest.find('\n', 0);
 	requestLine = i_httpRequest.substr(0, index);
 	requestLineParams = splitLine(' ', requestLine);
