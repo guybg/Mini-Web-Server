@@ -26,7 +26,7 @@ private:
 	static map<string, Method> m_methodMap;
 
 public:
-	bool isValid();
+	bool isValid(string i_method, string i_version);
 	bool setRequest(string i_method,
 		string i_requestUri,
 		string i_version,

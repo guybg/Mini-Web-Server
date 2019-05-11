@@ -20,3 +20,14 @@ string Trim::trim(const string& i_string)
 	return rightTrim(leftTrim(i_string));
 }
 
+string Trim::trimAll(const string i_string) {
+	string newString;
+	for (int i = 0; i < i_string.length(); i++) {
+		if (!(i_string[i] == '\n' || i_string[i] == '\r' || i_string[i] == '\t' || i_string[i] == '\f' || i_string[i] == '\v' || i_string[i] == ' '))
+		{
+			newString += i_string[i];
+		}
+	}
+	return newString;
+}
+

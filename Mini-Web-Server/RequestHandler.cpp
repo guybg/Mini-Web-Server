@@ -1,13 +1,6 @@
 #include "RequestHandler.h"
 
 bool RequestHandler::handle(Request i_request, string &o_messege) {
-	bool validRequest;
-	validRequest = i_request.isValid();
-
-	if (!validRequest) {
-		return 1;
-	}
-
 	switch (i_request.methodType()) {
 	case Request::GET :
 		httpGET(i_request, o_messege);
@@ -101,9 +94,11 @@ bool RequestHandler::httpPUT(Request i_request, string &o_processedMsg) {
 		requestLine += NOT_IMPLEMENTED;
 	}
 
+	string serverTime = ctime(&rawtime);
+	serverTime = serverTime.substr(0, serverTime.length() - 1);
 	responseParameters.insert(pair<string, string>(REQUEST_LINE, requestLine));
 	responseParameters.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
-	responseParameters.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+	responseParameters.insert(make_pair(DATE_KEY, serverTime));
 	responseParameters.insert(make_pair(BODY_KEY, ""));
 	responseParameters.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
 
@@ -229,6 +224,8 @@ bool RequestHandler::httpHEAD(Request i_request, string &o_processedMsg) {
 bool RequestHandler::getPath(string i_requestUri, string &o_path) {
 	string filePath = i_requestUri;
 	string rootFolder = "www";
+	if (filePath.empty())
+		return false;
 	if (filePath.at(0) == '/') {
 		filePath.insert(0, rootFolder);
 	}
@@ -259,4 +256,23 @@ string RequestHandler::buildAnswer(map<string, string> i_responseParameters) {
 	if(body.length() > 0)
 		answer += "\r\n\r\n" + body;
 	return answer;
+}
+
+void RequestHandler::httpSendBadRequest(string &o_processedMsg) {
+	map<string, string> responseParameters;
+	string requestLine;
+	time_t rawtime;
+	time(&rawtime);
+
+	requestLine += VERSION;
+	requestLine += ' ';
+	requestLine += BAD_REQUEST;
+	string serverTime = ctime(&rawtime);
+	serverTime = serverTime.substr(0, serverTime.length() - 1);
+	responseParameters.insert(pair<string, string>(REQUEST_LINE, requestLine));
+	responseParameters.insert(make_pair(DATE_KEY, serverTime));
+	responseParameters.insert(make_pair(SERVER, SERVER_INFO));
+	responseParameters.insert(make_pair(CONNECTION, CONNECTION_CLOSED));
+
+	o_processedMsg = buildAnswer(responseParameters);
 }

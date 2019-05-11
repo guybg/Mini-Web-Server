@@ -12,6 +12,7 @@ private:
 	static string leftTrim(const string&);
 public:
 	static string trim(const std::string&);
+	static string trimAll(const string);
 };
 
 #endif

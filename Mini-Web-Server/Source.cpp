@@ -344,7 +344,10 @@ void sendMessage(int index)
 	bool isParsed;
 	string messegeToClient;
 	isParsed = parser.Parse(request, sockets[index].currMsg);
-	if(isParsed == true) handler.handle(request, messegeToClient);
+	if (isParsed == true)
+		handler.handle(request, messegeToClient);
+	else
+		handler.httpSendBadRequest(messegeToClient);
 	strcpy(sendBuff, messegeToClient.c_str());
 	//*************************************
 

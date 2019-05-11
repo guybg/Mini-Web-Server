@@ -1,7 +1,16 @@
 #include "Request.h";
 
-bool Request::isValid() {
-	return true;
+bool Request::isValid(string i_method, string i_version) {
+	if ((i_method == "GET" ||
+		i_method == "PUT" ||
+		i_method == "DELETE" ||
+		i_method == "OPTIONS" ||
+		i_method == "TRACE" ||
+		i_method == "HEAD") &&
+		i_version == "HTTP/1.1") {
+		return true;
+	}
+	return false;
 }
 
 Request::Method Request::methodType() {
@@ -27,7 +36,7 @@ bool Request::setRequest(string i_method,
 
 	this->m_body = i_body;
 	this->m_rawMsg = i_httpRequest;
-	return 0;
+	return isValid(i_method, i_version);
 
 }
 

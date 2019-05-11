@@ -16,7 +16,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	requestLineParams = splitLine(' ', requestLine);
 	i_httpRequest = i_httpRequest.substr(index + 1);
 
-	index = i_httpRequest.find('\r\n\r\n', 0);
+	index = i_httpRequest.find("\r\n\r\n", 0);
 	if (index != -1)
 	{
 		requestBody = i_httpRequest.substr(index, i_httpRequest.length() - index);
@@ -25,8 +25,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 	i_httpRequest = i_httpRequest.substr(0, index);
 
 	vector<pair<string, string>> headerList;
-	int test = i_httpRequest.find("Host");
-	if (i_httpRequest.find("Host") == -1 || requestLineParams.size() != 3)
+	if (findCaseInsensitive(trimer.trimAll(i_httpRequest), "Host:") == -1 || requestLineParams.size() != 3)
 		isValid = false;
 	while (i_httpRequest.length() && isValid == true)
 	{
@@ -46,7 +45,7 @@ bool RequestParser::Parse(Request &o_request, string i_httpRequest) {
 			i_httpRequest.clear();
 	}
 	if(isValid == true)
-		o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody, rawRequest);
+		isValid = o_request.setRequest(requestLineParams[0], requestLineParams[1], requestLineParams[2], headerList, requestBody, rawRequest);
 	return isValid;
 }
 
@@ -82,4 +81,17 @@ vector<string> RequestParser::splitLine(char i_charToSplitBy, string i_line) {
 			i_line.clear();
 	}
 	return lines;
+}
+
+/*
+* Find Case Insensitive Sub String in a given substring
+*/
+size_t RequestParser::findCaseInsensitive(string i_data, string i_toSearch, size_t i_pos)
+{
+	// Convert complete given String to lower case
+	transform(i_data.begin(), i_data.end(), i_data.begin(), ::tolower);
+	// Convert complete given Sub String to lower case
+	transform(i_toSearch.begin(), i_toSearch.end(), i_toSearch.begin(), ::tolower);
+	// Find sub string in given string
+	return i_data.find(i_toSearch, i_pos);
 }

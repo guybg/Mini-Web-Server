@@ -35,6 +35,7 @@
 static class RequestHandler {
 public:
 	bool handle(Request i_request, string &o_messege);
+	void httpSendBadRequest(string &o_processedMsg);
 private:
 	bool httpGET(Request i_request, string &o_processedMsg);
 	bool httpPUT(Request i_request, string &o_processedMsg);
