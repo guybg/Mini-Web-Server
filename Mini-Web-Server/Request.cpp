@@ -1,9 +1,7 @@
 #include "Request.h";
 
 bool Request::isValid() {
-	if(this != NULL)
-		return true;
-	return false;
+	return true;
 }
 
 Request::Method Request::methodType() {
@@ -35,7 +33,7 @@ bool Request::setRequest(string i_method,
 
 map<string, Request::Method> Request::m_methodMap = {
 	{"GET", GET},
-	{"PUSH", PUSH},
+	{"PUT", PUT},
 	{"OPTIONS", OPTIONS},
 	{"DELETE", eDELETE},
 	{"TRACE", TRACE},

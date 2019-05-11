@@ -11,7 +11,7 @@ class Request {
 public:
 	enum Method {
 		GET = 0,
-		PUSH,
+		PUT,
 		OPTIONS,
 		eDELETE,
 		TRACE,

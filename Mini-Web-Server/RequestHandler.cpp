@@ -12,8 +12,8 @@ bool RequestHandler::handle(Request i_request, string &o_messege) {
 	case Request::GET :
 		httpGET(i_request, o_messege);
 		break;
-	case Request::PUSH:
-		httpPUSH(i_request, o_messege);
+	case Request::PUT:
+		httpPUT(i_request, o_messege);
 		break;
 	case Request::OPTIONS:
 		httpOPTIONS(i_request, o_messege);
@@ -70,8 +70,45 @@ bool RequestHandler::httpGET(Request i_request, string &o_processedMsg) {
 	o_processedMsg = buildAnswer(responseParameters);
 	return true;
 }
-bool RequestHandler::httpPUSH(Request i_request, string &o_processedMsg) {
-	return true;
+bool RequestHandler::httpPUT(Request i_request, string &o_processedMsg) {
+	map<string, string> responseParameters;
+	string filePath;
+	char ctmp[20];
+	bool isValidPath = false;
+	string requestLine;
+	bool isOperationSuccess = false;
+	time_t rawtime;
+	time(&rawtime);
+
+	isValidPath = getPath(i_request.getRequestUri(), filePath);
+	requestLine += VERSION;
+	requestLine += ' ';
+
+	if (isValidPath && fileHandler.isFileExists(filePath)) {
+		requestLine += OK;
+	}
+	else if (isValidPath){
+		requestLine += CREATED;
+		isOperationSuccess = fileHandler.createFile(filePath);
+	}
+
+	if (isValidPath) {
+		isOperationSuccess = fileHandler.writeFile(filePath, i_request.getBody());
+	}
+	if (!isOperationSuccess) {
+		int index = requestLine.find(' ');
+		requestLine = requestLine.substr(0, index + 1);
+		requestLine += NOT_IMPLEMENTED;
+	}
+
+	responseParameters.insert(pair<string, string>(REQUEST_LINE, requestLine));
+	responseParameters.insert(make_pair(CONTENT_TYPE_KEY, HTML_CONTENT_TYPE));
+	responseParameters.insert(make_pair(DATE_KEY, ctime(&rawtime)));
+	responseParameters.insert(make_pair(BODY_KEY, ""));
+	responseParameters.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
+
+	o_processedMsg = buildAnswer(responseParameters);
+	return isOperationSuccess;
 }
 bool RequestHandler::httpOPTIONS(Request i_request, string &o_processedMsg) {
 	map<string, string> responseParameters;
@@ -113,6 +150,32 @@ bool RequestHandler::httpOPTIONS(Request i_request, string &o_processedMsg) {
 	return true;
 }
 bool RequestHandler::httpDELETE(Request i_request, string &o_processedMsg) {
+	map<string, string> responseParameters;
+	char ctmp[20];
+	string filePath;
+	bool isValidPath = 0;
+	string requestLine;
+	time_t rawtime;
+
+	time(&rawtime);
+	isValidPath = getPath(i_request.getRequestUri(), filePath);
+	requestLine += VERSION;
+	requestLine += ' ';
+
+	if (isValidPath && fileHandler.isFileExists(filePath)) {
+		remove(filePath.c_str());
+		requestLine += OK;
+	}
+	else {
+		requestLine += NOT_FOUND;
+		responseParameters.insert(make_pair(CONTENT_LENGTH_KEY, _itoa(0, ctmp, 10)));
+	}
+	string serverTime = ctime(&rawtime);
+	responseParameters.insert(pair<string, string>(REQUEST_LINE, requestLine));
+	serverTime = serverTime.substr(0, serverTime.length() - 1);
+	responseParameters.insert(make_pair(DATE_KEY, serverTime));
+	o_processedMsg = buildAnswer(responseParameters);
+
 	return true;
 }
 bool RequestHandler::httpTRACE(Request i_request, string &o_processedMsg) {

@@ -10,7 +10,9 @@ class FileHandler
 {
 public:
 	bool readFile(string i_filePath, string &o_fileContent);
-	bool writeFile(string i_fileType);
+	bool writeFile(string i_filePath, string fileContent);
+	bool createFile(string i_filePath);
+	bool isFileExists(string i_filePath);
 };
 
 #endif
