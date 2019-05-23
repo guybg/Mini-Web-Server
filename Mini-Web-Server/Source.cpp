@@ -12,14 +12,18 @@ using namespace std;
 #include "RequestParser.h"
 #include "RequestHandler.h"
 
+#define MAX_TIMETOWAIT 120
+
 struct SocketState
 {
 	SOCKET id;			// Socket handle
+	sockaddr_in address;
 	int	recv;			// Receiving?
 	int	send;			// Sending?
 	char buffer[128];
 	char currMsg[128];
 	int len;
+	time_t lastUsed;
 };
 
 
@@ -33,7 +37,7 @@ const int SEND = 4;
 const int SEND_TIME = 1;
 const int SEND_SECONDS = 2;
 
-bool addSocket(SOCKET id, int what);
+bool addSocket(SOCKET id, sockaddr_in socketAddr, int what);
 void removeSocket(int index);
 void acceptConnection(int index);
 void receiveMessage(int index);
@@ -44,17 +48,11 @@ int socketsCount = 0;
 
 void main() 
 {
-    // Initialize Winsock (Windows Sockets).
+	time_t currentTime;
 
-	// Create a WSADATA object called wsaData.
-    // The WSADATA structure contains information about the Windows 
-	// Sockets implementation.
+    // Initialize Winsock (Windows Sockets).
 	WSAData wsaData; 
     	
-	// Call WSAStartup and return its value as an integer and check for errors.
-	// The WSAStartup function initiates the use of WS2_32.DLL by a process.
-	// First parameter is the version number 2.2.
-	// The WSACleanup function destructs the use of WS2_32.DLL by a process.
 	if (NO_ERROR != WSAStartup(MAKEWORD(2,2), &wsaData))
 	{
         cout<<"Http Server: Error at WSAStartup()\n";
@@ -63,22 +61,8 @@ void main()
 
 	// Server side:
 	// Create and bind a socket to an internet address.
-	// Listen through the socket for incoming connections.
-
-    // After initialization, a SOCKET object is ready to be instantiated.
-	
-	// Create a SOCKET object called listenSocket. 
-	// For this application:	use the Internet address family (AF_INET), 
-	//							streaming sockets (SOCK_STREAM), 
-	//							and the TCP/IP protocol (IPPROTO_TCP).
     SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-	// Check for errors to ensure that the socket is a valid socket.
-	// Error detection is a key part of successful networking code. 
-	// If the socket call fails, it returns INVALID_SOCKET. 
-	// The if statement in the previous code is used to catch any errors that
-	// may have occurred while creating the socket. WSAGetLastError returns an 
-	// error number associated with the last error that occurred.
 	if (INVALID_SOCKET == listenSocket)
 	{
         cout<<"Http Server: Error at socket(): "<<WSAGetLastError()<<endl;
@@ -86,32 +70,11 @@ void main()
         return;
 	}
 
-	// For a server to communicate on a network, it must bind the socket to 
-	// a network address.
-
-	// Need to assemble the required data for connection in sockaddr structure.
-
-    // Create a sockaddr_in object called serverService. 
 	sockaddr_in serverService;
-	// Address family (must be AF_INET - Internet address family).
     serverService.sin_family = AF_INET; 
-	// IP address. The sin_addr is a union (s_addr is a unsigned long 
-	// (4 bytes) data type).
-	// inet_addr (Iternet address) is used to convert a string (char *) 
-	// into unsigned long.
-	// The IP address is INADDR_ANY to accept connections on all interfaces.
 	serverService.sin_addr.s_addr = INADDR_ANY;
-	// IP Port. The htons (host to network - short) function converts an
-	// unsigned short from host to TCP/IP network byte order 
-	// (which is big-endian).
 	serverService.sin_port = htons(TIME_PORT);
 
-	// Bind the socket for client's requests.
-
-    // The bind function establishes a connection to a specified socket.
-	// The function uses the socket handler, the sockaddr structure (which
-	// defines properties of the desired connection) and the length of the
-	// sockaddr structure (in bytes).
     if (SOCKET_ERROR == bind(listenSocket, (SOCKADDR *) &serverService, sizeof(serverService))) 
 	{
 		cout<<"Http Server: Error at bind(): "<<WSAGetLastError()<<endl;
@@ -130,11 +93,22 @@ void main()
 		WSACleanup();
         return;
 	}
-	addSocket(listenSocket, LISTEN);
+	addSocket(listenSocket, serverService, LISTEN);
 
     // Accept connections and handles them one by one.
 	while (true)
 	{
+		//remove sockets that past timeout
+		for (int i = 1; i < MAX_SOCKETS; i++)
+		{
+			currentTime = time(0);
+			if ((sockets[i].recv != EMPTY || sockets[i].send != EMPTY) &&
+				(sockets[i].lastUsed != 0) && (currentTime - sockets[i].lastUsed > MAX_TIMETOWAIT))
+			{
+				cout << "Time Server: Client " << inet_ntoa(sockets[i].address.sin_addr) << ":" << ntohs(sockets[i].address.sin_port) << " has been disconected (timeout)." << endl;
+				removeSocket(i);
+			}
+		}
 		// The select function determines the status of one or more sockets,
 		// waiting if necessary, to perform asynchronous I/O. Use fd_sets for
 		// sets of handles for reading, writing and exceptions. select gets "timeout" for waiting
@@ -210,7 +184,7 @@ void main()
 	WSACleanup();
 }
 
-bool addSocket(SOCKET id, int what)
+bool addSocket(SOCKET id, sockaddr_in socketAddr, int what)
 {
 	for (int i = 0; i < MAX_SOCKETS; i++)
 	{
@@ -218,8 +192,10 @@ bool addSocket(SOCKET id, int what)
 		{
 			sockets[i].id = id;
 			sockets[i].recv = what;
+			sockets[i].address = socketAddr;
 			sockets[i].send = IDLE;
 			sockets[i].len = 0;
+			sockets[i].lastUsed = time(0);
 			socketsCount++;
 			return (true);
 		}
@@ -257,7 +233,7 @@ void acceptConnection(int index)
 		cout<<"Http Server: Error at ioctlsocket(): "<<WSAGetLastError()<<endl;
 	}
 
-	if (addSocket(msgSocket, RECEIVE) == false)
+	if (addSocket(msgSocket, from, RECEIVE) == false)
 	{
 		cout<<"\t\tToo many connections, dropped!\n";
 		closesocket(id);
@@ -313,20 +289,20 @@ void sendMessage(int index)
 	char sendBuff[1024];
 
 	SOCKET msgSocket = sockets[index].id;
+	sockets[index].lastUsed = time(0);
 
-	//*************testing*************
 	RequestParser parser;
 	RequestHandler handler;
 	Request request;
 	bool isParsed;
 	string messegeToClient;
+
 	isParsed = parser.Parse(request, sockets[index].currMsg);
 	if (isParsed == true)
 		handler.handle(request, messegeToClient);
 	else
 		handler.httpSendBadRequest(messegeToClient);
 	strcpy(sendBuff, messegeToClient.c_str());
-	//*************************************
 
 	bytesSent = send(msgSocket, sendBuff, (int)strlen(sendBuff), 0);
 	if (SOCKET_ERROR == bytesSent)
